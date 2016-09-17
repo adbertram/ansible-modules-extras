@@ -24,6 +24,7 @@
 DOCUMENTATION = '''
 ---
 module: win_iis_webapppooldefaults
+version_added: "2.2"
 short_description: Sets IIS settings for the application pool defaults
 description:
      - Sets IIS settings for the application pool defaults
