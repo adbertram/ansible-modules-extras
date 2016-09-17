@@ -59,6 +59,10 @@ author:
     - "Adam Bertram (@adbertram)"
 '''
 
+RETURN = """
+
+"""
+
 EXAMPLES = r'''
 # This sets the primary DNS server address to 4.4.4.4 and the secondary to 8.8.8.8 on the Ethernet network adapter.
 $ ansible -i hosts -m win_dnsServerAddress -a "address='4.4.4.4','8.8.8.8' interfaceAlias='Ethernet'" all
