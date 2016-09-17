@@ -50,6 +50,10 @@ author:
     - "Adam Bertram (@adbertram)"
 '''
 
+RETURN = """
+
+"""
+
 EXAMPLES = r'''
 # This sets the idleTime on all application pools by default o 00:00:00
 $ ansible -i hosts -m win_iis_webapppooldefaults -a "idleTimeout=00:00:00" all
