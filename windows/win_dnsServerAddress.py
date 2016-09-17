@@ -24,6 +24,7 @@
 DOCUMENTATION = '''
 ---
 module: win_dnsServerAddress
+version_added: "2.2"
 short_description: Sets DNS server addresses on a network adapter
 description:
      - Sets DNS server addresses on a network adapter
