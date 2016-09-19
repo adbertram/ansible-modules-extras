@@ -23,7 +23,7 @@
 
 DOCUMENTATION = '''
 ---
-module: win_iis_webapppooldefaults
+module: win_iis_webapppool_defaults
 short_description: Sets IIS settings for the application pool defaults
 description:
      - Sets IIS settings for the application pool defaults
@@ -43,6 +43,7 @@ options:
       - startMode
     choices:
       - AlwaysRunning
+      - OnDemand
     default: null
     required: false
 author:
@@ -51,7 +52,7 @@ author:
 
 EXAMPLES = r'''
 # This sets the idleTime on all application pools by default o 00:00:00
-$ ansible -i hosts -m win_iis_webapppooldefaults -a "idleTimeout=00:00:00" all
+$ ansible -i hosts -m win_iis_webapppool_defaults -a "idleTimeout=00:00:00" all
 # Playbook example
 ---
 - name: Set idleTimeout to 00:00:00
@@ -59,6 +60,6 @@ $ ansible -i hosts -m win_iis_webapppooldefaults -a "idleTimeout=00:00:00" all
   gather_facts: false
   tasks:
     - name: Set idleTimeout to 00:00:00
-      win_iis_webapppooldefaults:
+      win_iis_webapppool_defaults:
         address: "00:00:00"
 '''
