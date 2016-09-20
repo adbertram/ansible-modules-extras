@@ -1,6 +1,7 @@
 #!powershell
 
 # (c) 2015, Adam Bertram <@adbertram>
+# (c) 2016, Adam Bertram <@adbertram>
 #
 # This file is part of Ansible
 #
@@ -16,6 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible. If not, see <http://www.gnu.org/licenses/>.
 
 # WANT_JSON
 # POWERSHELL_COMMON
