@@ -161,86 +161,90 @@ Try {
         }
 
         # updates
-        If ($share.Description -ne $description) {
+        If ($description -and ($share.Description -ne $description)) {
             Set-SmbShare -Force -Name $name -Description $description
             Set-Attr $result "changed" $true;
         }
-        If ($share.FolderEnumerationMode -ne $folderEnum) {
+        If ($folderEnum -and ($share.FolderEnumerationMode -ne $folderEnum)) {
             Set-SmbShare -Force -Name $name -FolderEnumerationMode $folderEnum
             Set-Attr $result "changed" $true;
         }
 
-        # clean permissions that imply others
-        ForEach ($user in $permissionFull) {
-            $permissionChange.remove($user)
-            $permissionRead.remove($user)
-        }
-        ForEach ($user in $permissionChange) {
-            $permissionRead.remove($user)
-        }
+        $permissionLabels = 'list','read','change','full','deny'
+        ## Only perform permission work if any permission was specified
+        if (Get-Variable -Name $permissionLabels -ErrorAction SilentlyContinue) {
+            # clean permissions that imply others
+            ForEach ($user in $permissionFull) {
+                $permissionChange.remove($user)
+                $permissionRead.remove($user)
+            }
+            ForEach ($user in $permissionChange) {
+                $permissionRead.remove($user)
+            }
 
-        # remove permissions
-        $permissions = Get-SmbShareAccess -Name $name
-        ForEach ($permission in $permissions) {
-            If ($permission.AccessControlType -eq "Deny") {
-                If (!$permissionDeny.Contains($permission.AccountName)) {
-                    Unblock-SmbShareAccess -Force -Name $name -AccountName $permission.AccountName
-                    Set-Attr $result "changed" $true;
+            # remove permissions
+            $permissions = Get-SmbShareAccess -Name $name
+            ForEach ($permission in $permissions) {
+                If ($permission.AccessControlType -eq "Deny") {
+                    If (!$permissionDeny.Contains($permission.AccountName)) {
+                        Unblock-SmbShareAccess -Force -Name $name -AccountName $permission.AccountName
+                        Set-Attr $result "changed" $true;
+                    }
+                }
+                ElseIf ($permission.AccessControlType -eq "Allow") {
+                    If ($permission.AccessRight -eq "Full") {
+                        If (!$permissionFull.Contains($permission.AccountName)) {
+                            Revoke-SmbShareAccess -Force -Name $name -AccountName $permission.AccountName
+                            Set-Attr $result "changed" $true;
+
+                            Continue
+                        }
+
+                        # user got requested permissions
+                        $permissionFull.remove($permission.AccountName)
+                    }
+                    ElseIf ($permission.AccessRight -eq "Change") {
+                        If (!$permissionChange.Contains($permission.AccountName)) {
+                            Revoke-SmbShareAccess -Force -Name $name -AccountName $permission.AccountName
+                            Set-Attr $result "changed" $true;
+
+                            Continue
+                        }
+
+                        # user got requested permissions
+                        $permissionChange.remove($permission.AccountName)
+                    }
+                    ElseIf ($permission.AccessRight -eq "Read") {
+                        If (!$permissionRead.Contains($permission.AccountName)) {
+                            Revoke-SmbShareAccess -Force -Name $name -AccountName $permission.AccountName
+                            Set-Attr $result "changed" $true;
+
+                            Continue
+                        }
+
+                        # user got requested permissions
+                        $permissionRead.Remove($permission.AccountName)
+                    }
                 }
             }
-            ElseIf ($permission.AccessControlType -eq "Allow") {
-                If ($permission.AccessRight -eq "Full") {
-                    If (!$permissionFull.Contains($permission.AccountName)) {
-                        Revoke-SmbShareAccess -Force -Name $name -AccountName $permission.AccountName
-                        Set-Attr $result "changed" $true;
-
-                        Continue
-                    }
-
-                    # user got requested permissions
-                    $permissionFull.remove($permission.AccountName)
-                }
-                ElseIf ($permission.AccessRight -eq "Change") {
-                    If (!$permissionChange.Contains($permission.AccountName)) {
-                        Revoke-SmbShareAccess -Force -Name $name -AccountName $permission.AccountName
-                        Set-Attr $result "changed" $true;
-
-                        Continue
-                    }
-
-                    # user got requested permissions
-                    $permissionChange.remove($permission.AccountName)
-                }
-                ElseIf ($permission.AccessRight -eq "Read") {
-                    If (!$permissionRead.Contains($permission.AccountName)) {
-                        Revoke-SmbShareAccess -Force -Name $name -AccountName $permission.AccountName
-                        Set-Attr $result "changed" $true;
-
-                        Continue
-                    }
-
-                    # user got requested permissions
-                    $permissionRead.Remove($permission.AccountName)
-                }
+            
+            # add missing permissions
+            ForEach ($user in $permissionRead) {
+                Grant-SmbShareAccess -Force -Name $name -AccountName $user -AccessRight "Read"
+                Set-Attr $result "changed" $true;
             }
-        }
-        
-        # add missing permissions
-        ForEach ($user in $permissionRead) {
-            Grant-SmbShareAccess -Force -Name $name -AccountName $user -AccessRight "Read"
-            Set-Attr $result "changed" $true;
-        }
-        ForEach ($user in $permissionChange) {
-            Grant-SmbShareAccess -Force -Name $name -AccountName $user -AccessRight "Change"
-            Set-Attr $result "changed" $true;
-        }
-        ForEach ($user in $permissionFull) {
-            Grant-SmbShareAccess -Force -Name $name -AccountName $user -AccessRight "Full"
-            Set-Attr $result "changed" $true;
-        }
-        ForEach ($user in $permissionDeny) {
-            Block-SmbShareAccess -Force -Name $name -AccountName $user
-            Set-Attr $result "changed" $true;
+            ForEach ($user in $permissionChange) {
+                Grant-SmbShareAccess -Force -Name $name -AccountName $user -AccessRight "Change"
+                Set-Attr $result "changed" $true;
+            }
+            ForEach ($user in $permissionFull) {
+                Grant-SmbShareAccess -Force -Name $name -AccountName $user -AccessRight "Full"
+                Set-Attr $result "changed" $true;
+            }
+            ForEach ($user in $permissionDeny) {
+                Block-SmbShareAccess -Force -Name $name -AccountName $user
+                Set-Attr $result "changed" $true;
+            }
         }
     }
 }
