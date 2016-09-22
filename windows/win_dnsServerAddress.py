@@ -24,7 +24,6 @@
 DOCUMENTATION = '''
 ---
 module: win_dnsServerAddress
-version_added: "2.2"
 short_description: Sets DNS server addresses on a network adapter
 description:
      - Sets DNS server addresses on a network adapter
@@ -58,10 +57,6 @@ options:
 author:
     - "Adam Bertram (@adbertram)"
 '''
-
-RETURN = """
-
-"""
 
 EXAMPLES = r'''
 # This sets the primary DNS server address to 4.4.4.4 and the secondary to 8.8.8.8 on the Ethernet network adapter.

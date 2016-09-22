@@ -24,9 +24,6 @@
 DOCUMENTATION = '''
 ---
 module: win_iis_webapppool_defaults
-=======
-module: win_iis_webapppooldefaults
-version_added: "2.2"
 short_description: Sets IIS settings for the application pool defaults
 description:
      - Sets IIS settings for the application pool defaults
@@ -52,10 +49,6 @@ options:
 author:
     - "Adam Bertram (@adbertram)"
 '''
-
-RETURN = """
-
-"""
 
 EXAMPLES = r'''
 # This sets the idleTime on all application pools by default o 00:00:00
